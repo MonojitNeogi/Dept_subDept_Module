@@ -1,0 +1,151 @@
+﻿@model IEnumerable<Dept_subDept_Module.Models.Department>
+@{
+    ViewData["Title"] = "ViewDepartment";
+}
+<style>
+    .m-collapse {
+        width: 100% !important;
+        font-size: 18px;
+        padding: 15px 30px;
+        text-align: left !important;
+        border-radius: 15px !important;
+        font-weight: bold;
+    }
+</style>
+
+<h3 class="mb-4">View All Department / Sub-Department</h3>
+
+@* <h5 class="my-4">All Departments And Sub-Departments</h5> *@
+
+@{
+    var i = 0;
+    foreach (var items in Model)
+    {
+        <p class="">
+
+            <a class="btn btn-primary m-collapse" data-bs-toggle="collapse" href="#collapseExample@(++i)" role="button" aria-expanded="false" aria-controls="collapseExample@(i)">
+                <span class="me-4">
+                    @if (items.Logo != "No file")
+                    {
+                        <img src="@items.Logo" style="width:40px;border-radius:10px" />
+                    }
+                </span> @items.Name
+            </a>
+        </p>
+        <div class="collapse mb-3" id="collapseExample@(i)">
+            <div class="card card-body">
+
+                @{
+                    var parent_list = new List<int>();
+                    var p_id = items.Parent_Id;
+
+                    while (p_id != 0)
+                    {
+                        var parents = Model.Where(x => x.Id == p_id).First();
+                        p_id = parents.Parent_Id;
+                        parent_list.Add(parents.Id);
+
+                    }
+
+                    <p style="font-size:18px; font-weight:bold">Parent Department's List:</p>
+
+                    @if (parent_list.Count > 0)
+                    {
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th scope="col">#</th>
+                                    <th scope="col">Department Name</th>
+                                    <th scope="col">Logo</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @{
+                                    var sl = parent_list.Count + 1;
+                                    foreach (var item2 in parent_list)
+                                    {
+                                        var p_details = Model.Where(x => x.Id == item2).First();
+                                        <tr>
+                                            <th scope="row">@(--sl)</th>
+                                            <td>
+                                                @if (p_details.Parent_Id == 0)
+                                                {
+                                                    <p>@p_details.Name (Root)</p>
+                                                }
+                                                else
+                                                {
+                                                    <p>@p_details.Name</p>
+                                                }
+                                            </td>
+                                            <td>
+                                                @if (p_details.Logo != "No file")
+                                                {
+                                                    <img src="@p_details.Logo" style="width:60px;border-radius:10px" />
+                                                }
+                                                else
+                                                {
+                                                    <p>@p_details.Logo</p>
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                            </tbody>
+                        </table>
+                    }
+                    else
+                    {
+                        <p style="font-size:18px">This is root department.</p>
+                    }
+                }
+
+                <p style="font-size:18px; font-weight:bold">Sub-Department's List:</p>
+                @{
+                    var child_list = Model.Where(x => x.Parent_Id == items.Id).ToList();
+                }
+
+                @if (child_list.Count > 0)
+                {
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th scope="col">#</th>
+                                <th scope="col">Department Name</th>
+                                <th scope="col">Logo</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{
+                                var j = 0;
+                                foreach (var item2 in child_list)
+                                {
+                                    <tr>
+                                        <th scope="row">@(++j)</th>
+                                        <td>
+                                            <p>@item2.Name</p>
+                                        </td>
+                                        <td>
+                                            @if (item2.Logo != "No file")
+                                            {
+                                                <img src="@item2.Logo" style="width:60px;border-radius:10px" />
+                                            }
+                                            else
+                                            {
+                                                <p>@item2.Logo</p>
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+                }
+                else
+                {
+                    <p style="font-size:18px">No sub-department found.</p>
+                }
+            </div>
+        </div>
+
+    }
+}
